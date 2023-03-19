@@ -1,0 +1,30 @@
+name: deploy site 
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: 3.x
+
+      - name: Setup Cache
+        uses: actions/cache@v2
+        with:
+          key: ${{ github.ref }}
+          path: .cache
+
+      - name: Install MkDocs
+        run: pip install mkdocs-material 
+
+      - name: Deploy
+        run: mkdocs gh-deploy --force

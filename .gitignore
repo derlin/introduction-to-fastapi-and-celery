@@ -1,0 +1,19 @@
+*.pyc
+*.egg
+!/tests/**/*.egg
+/*.egg-info
+/dist/*
+build
+_build
+.cache
+*.so
+
+# Poetry
+.venv
+poetry/core
+
+# IDEs
+.vscode
+*.iml
+.idea
+.DS_Store
