@@ -42,7 +42,7 @@ the final implementation, have a look at my nb-runner project on GitHub:
 
 [:simple-github: fastapi-notebook-runner](https://github.com/derlin/fastapi-notebook-runner){ .md-button }
 
-[^1]: for the story, I first switched to FastAPI for of its
+[^1]: for the story, I first switched to FastAPI for its
       [Background Tasks](https://fastapi.tiangolo.com/tutorial/background-tasks/). I thought it would
       allow me to avoid Celery. I soon discovered it wasn't enough, as I had no control over the number of tasks.
       I thus ended up learning Celery after all. But the switch was still worth it!

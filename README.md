@@ -9,7 +9,7 @@ here and there. I created it to back up my talk at GDG Fribourg on **March 22, 2
 Read on ⮕ ✨✨ https://derlin.github.io/introduction-to-fastapi-and-celery ✨✨
 
 The full implementation of the use case can be found at: 
-https://derlin.github.io/fastapi-notebook-runner.
+https://github.com/derlin/fastapi-notebook-runner.
 
 **IMPORTANT** At the time of writing, the versions used are:
 

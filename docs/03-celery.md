@@ -266,7 +266,7 @@ def start() -> TaskOut:
             raise HTTPException(status_code=500, detail="Could not acquire lock")
 
         task_id = redis_instance.get(REDIS_TASK_KEY)
-        if task_id is None or not task.app.AsyncResult(task_id).ready():
+        if task_id is None or task.app.AsyncResult(task_id).ready():
             # no task was ever run, or the last task finished already
             r = task.dummy_task.delay()
             redis_instance.set(REDIS_TASK_KEY, r.task_id)
@@ -293,6 +293,13 @@ def status(task_id: str = None) -> TaskOut:
     r = task.app.AsyncResult(task_id)
     return _to_task_out(r)
 ```
+
+!!! note
+
+    This code is far from perfect. For example: what happens if the `task_id` is incorrect or
+    not known by celery? For `/status`, we may just get an error. But for `/start`?
+    The lock may never be released! This is one of many flows, so don't put it in production
+    :fontawesome-regular-face-smile-wink:
 
 ## Canceling long-running tasks
 

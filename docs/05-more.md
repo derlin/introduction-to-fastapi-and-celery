@@ -21,6 +21,14 @@ The full app uses two Docker images even though it needs 3 processes:
 Again, have a look at [fastapi-notebook-runner](https://github.com/derlin/fastapi-notebook-runner)
 for more details.
 
+## Tips
+
+* [conventional commits](conventionalcommits.org/en/v1.0.0/)
+* [black](https://github.com/psf/black), [ruff](https://github.com/charliermarsh/ruff)
+  and [pytest](https://pytest.org)
+* [GitHub Actions](https://docs.github.com/en/actions)
+* [MkDocs Material](https://squidfunk.github.io/mkdocs-material)
+
 ## One more thing
 
 I really enjoyed putting this site together. If you found it useful, please leave a :star:
