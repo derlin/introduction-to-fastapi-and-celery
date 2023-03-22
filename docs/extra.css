@@ -1,0 +1,13 @@
+[data-md-color-scheme="default"] {
+    --md-code-hl-color: #64856514;
+}
+
+[data-md-color-scheme="slate"] {
+    --md-code-hl-color: #31ca8926;
+}
+
+
+img {
+    margin: auto;
+    display: block;
+}

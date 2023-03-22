@@ -1,14 +1,39 @@
 site_name: FastAPI + Celery = ♥
-repo_name: https://github.com/derlin/introduction-to-fastapi-and-celery
+site_author: Lucy Linder, akka derlin
+site_description: >-
+  Learn about FastAPI and Celery using a practical use case.
+
+repo_name: derlin/introduction-to-fastapi-and-celery
+repo_url: https://github.com/derlin/introduction-to-fastapi-and-celery
+
+copyright: Copyright &copy; 2023 Lucy Linder @ derlin
 
 theme:
   name: material
+  favicon: assets/favicon.svg
+  palette:
+  - scheme: default
+    primary: green
+    accent: light green
+    toggle:
+      icon: material/brightness-7
+      name: Switch to dark mode
+  - scheme: slate
+    primary: light green
+    accent: green
+    toggle:
+      icon: material/brightness-4
+      name: Switch to light mode
+  features:
+    - navigation.footer
 
 nav:
   - Introduction: index.md
   - Poetry: 01-poetry.md
   - FastAPI: 02-fastapi.md
   - Celery: 03-celery.md
+  - Notebooks: 04-notebook.md
+  - Finishing touches: 05-more.md
 
 markdown_extensions:
 
@@ -43,3 +68,19 @@ markdown_extensions:
   - pymdownx.tasklist:
       custom_checkbox: true
   - pymdownx.tilde
+  - pymdownx.snippets
+
+extra_css:
+  - extra.css
+
+extra:
+  generator: false
+  social:
+    - icon: fontawesome/brands/octopus-deploy
+      link: https://blog.derlin.ch
+    - icon: fontawesome/brands/github
+      link: https://github.com/derlin
+    - icon: fontawesome/brands/linkedin
+      link: https://www.linkedin.com/in/lucy-linder-4a401726
+    - icon: material/dev-to
+      link: https://dev.to/derlin

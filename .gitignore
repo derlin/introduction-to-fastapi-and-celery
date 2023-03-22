@@ -17,3 +17,6 @@ poetry/core
 *.iml
 .idea
 .DS_Store
+
+# Other
+.ipynb_checkpoints

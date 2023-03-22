@@ -35,17 +35,26 @@ In other words, the entities involved in Celery are:
 
 See also the diagram in [Understanding Celery's architecture](https://subscription.packtpub.com/book/programming/9781783288397/7/ch07lvl1sec45/understanding-celerys-architecture)
   
-### Getting started
+## Getting started
 
-First, we need a *broker* and a *backend*. We will use redis, as it is both full-featured and easy to use:
+### Launch a broker/backend
+
+First, we need a *broker* and a *backend*. We will use Redis, as it is both full-featured and easy to use:
 ```bash
 poetry add 'celery[redis]'
 ```
 
-We can run redis locally using:
+We can run Redis locally using:
 ```bash
 docker run --rm --name some-redis -p 6379:6379 redis:latest
 ```
+
+!!! tip
+
+    To see what happens exactly inside Redis, download and run a Redis GUI
+    such as [Another Redis Desktop Manager](https://github.com/qishibo/AnotherRedisDesktopManager).
+
+### Create a task
 
 Now, let's create a task. We first need to create a **Celery instance**, which is the entrypoint to Celery:
 may it be submitting tasks (client), managing workers, getting results, etc. We usually call it the Celery
@@ -74,7 +83,7 @@ app = Celery(__name__, broker=redis_url, backend=redis_url)
 
 @app.task
 def dummy_task():
-    folder = '/tmp/celery'
+    folder = "/tmp/celery"
     os.makedirs(folder, exist_ok=True)
     now = datetime.now().strftime("%Y-%m-%dT%H:%M:%s")
     with open(f"{folder}/task-{now}.txt", "w") as f:
@@ -99,7 +108,11 @@ an `AsyncResult`, that can be further used to query the status.
 PENDING
 ```
 
-Why is it pending? Well, we didn't launch any workers did we? Let's change that. In another terminal, run:
+Why is it pending? Well, we didn't launch any workers, did we? Let's change that.
+
+### Launch a worker
+
+In another terminal, run:
 ```bash
 celery --app=fastapi_celery.task.app worker --concurrency=1 --loglevel=DEBUG
 ```
@@ -110,14 +123,15 @@ Now, try again:
 SUCCESS
 ```
 
-To ensure this works, try adding a delay in the task: `time.sleep(10)`. Don't forget to restart the worker, as the
-method definition changed! Even better, use `watchdog` to automatically restart the worker:
+To ensure this works, try adding a delay in the task: `time.sleep(10)`.
+Don't forget to restart the worker, as the method definition changed!
+Even better, use `watchdog` to automatically restart the worker:
 ```bash
 poetry add watchdog --group=dev
 watchmedo auto-restart --directory=./fastapi_celery --pattern=task.py -- celery --app=fastapi_celery.task.app worker --concurrency=1 --loglevel=DEBUG
 ```
 
-## Parameters and return values
+### Parameters and return values
 
 Now, let's change a bit our dummy task so it receives an argument and returns a result:
 ```python
@@ -152,8 +166,8 @@ t.successful()
 False
 ```
 
-So beware: results must be JSON-serializable (or match the serialization configured in Celery), since the results
-will be serialized and stored in the results backend.
+So beware: results must be JSON-serializable (or match the serialization configured in Celery)
+since the results will be serialized and stored in the results backend.
 
 ## Using Celery with FastAPI
 
@@ -163,27 +177,32 @@ and call our `task.delay()` from a REST call. We can return the task ID and its 
 ```python
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from celery.result import AsyncResult
 
 from . import task
 
 app = FastAPI()
 
 
-class TaskResponse(BaseModel):
+class TaskOut(BaseModel):
     id: str
     status: str
 
 
 @app.get("/start")
-def start() -> TaskResponse:
-    t = task.dummy_task.delay()
-    return TaskResponse(id=t.task_id, status=t.status)
+def start() -> TaskOut:
+    r = task.dummy_task.delay()
+    return _to_task_out(r)
 
 
 @app.get("/status")
-def status(id: str) -> TaskResponse:
-    t = task.app.AsyncResult(id)
-    return TaskResponse(id=id, status=t.status)
+def status(task_id: str) -> TaskOut:
+    r = task.app.AsyncResult(task_id)
+    return _to_task_out(r)
+
+
+def _to_task_out(r: AsyncResult) -> TaskOut:
+    return TaskOut(id=r.task_id, status=r.status)
 ```
 
 
@@ -204,11 +223,15 @@ Ideally, we would like to get the lock when we start a task (from the REST endpo
 it when the task is finished (from the Celery worker). But a lock should be acquired and released from the
 same thread... And worse, if our worker fails to release the lock, we are stuck!
 
+![bad use of a lock](assets/03-lock-bad.excalidraw.png)
+
 A better way is to use the lock from FastAPI only. We cannot know when the task is finished, but we can query
 the state of a task given an ID. So let's use the lock to secure the read/write to a Redis key, `current_task_id`,
 which holds the ID of the last task!
 
-This way, the REST endpoint:
+![good use of a lock](assets/03-lock-good.excalidraw.png)
+
+<!-- This way, the REST endpoint:
 
 1. acquires the lock
 2. reads the last task id from Redis
@@ -219,7 +242,7 @@ This way, the REST endpoint:
 5. releases the lock
 
 Cherries on the cake, endpoints such as `/status` can return the status of the last task by default,
-so users do not have to supply a value on each call.
+so users do not have to supply a value on each call. -->
 
 So, for the implementation, let's first create a redis lock:
 
@@ -227,7 +250,7 @@ So, for the implementation, let's first create a redis lock:
 from redis import Redis
 from redis.lock import Lock as RedisLock
 
-redis_instance = Redis.from_url(worker.redis_url)
+redis_instance = Redis.from_url(task.redis_url)
 lock = RedisLock(redis_instance, name="task_id")
 
 REDIS_TASK_KEY = "current_task"
@@ -237,17 +260,17 @@ The `/start` endpoint now looks like this:
 
 ```python
 @app.get("/start")
-def start() -> TaskResponse:
+def start() -> TaskOut:
     try:
         if not lock.acquire(blocking_timeout=4):
             raise HTTPException(status_code=500, detail="Could not acquire lock")
 
-        id = redis_instance.get(REDIS_TASK_KEY)
-        if id is None or worker.app.AsyncResult(id).status in ("SUCCESS", "FAILURE"):
+        task_id = redis_instance.get(REDIS_TASK_KEY)
+        if task_id is None or not task.app.AsyncResult(task_id).ready():
             # no task was ever run, or the last task finished already
-            t = task.dummy_task.delay()
-            redis_instance.set(REDIS_TASK_KEY, t.id)
-            return TaskResponse(id=t.task_id, status=t.status)
+            r = task.dummy_task.delay()
+            redis_instance.set(REDIS_TASK_KEY, r.task_id)
+            return _to_task_out(r)
         else:
             # the last task is still running!
             raise HTTPException(
@@ -257,16 +280,18 @@ def start() -> TaskResponse:
         lock.release()
 ```
 
-And for the `/status`, we can now make the `id` query parameter optional:
+And for the `/status`, we can now make the `task_id` query parameter optional:
 
 ```python
 @app.get("/status")
-def status(id: str = None) -> TaskResponse:
-    id = id or redis_instance.get(REDIS_TASK_KEY)
-    if id is None:
-        raise HTTPException(status_code=400, detail="Could not determine task id")
-    t = task.app.AsyncResult(id)
-    return TaskResponse(id=id, status=t.status)
+def status(task_id: str = None) -> TaskOut:
+    task_id = task_id or redis_instance.get(REDIS_TASK_KEY)
+    if task_id is None:
+        raise HTTPException(
+            status_code=400, detail=f"Could not determine task {task_id}"
+        )
+    r = task.app.AsyncResult(task_id)
+    return _to_task_out(r)
 ```
 
 ## Canceling long-running tasks
@@ -280,5 +305,36 @@ how many workers are running, etc.
 
 from . import task
 
+# note: if id is read from redis, use:
+#  task_id = redis_instance.get(...).decode('utf-8')
 task.app.control.revoke(task_id, terminate=True, signal="SIGKILL")
+```
+
+## Returning results and exceptions
+
+Simply add a new property to `TaskOut`:
+
+```py hl_lines="4"
+class TaskOut(BaseModel):
+    id: str
+    status: str
+    result: str | None = None
+```
+
+And modify `_to_task_out` like this:
+
+```py hl_lines="5"
+def _to_taskout(r: AsyncResult) -> TaskOut:
+    return TaskOut(
+        id=r.task_id, 
+        status=r.status, 
+        result=r.traceback if r.failed() else r.result,
+    )
+```
+
+You can try to get the traceback by making the task throw an exception
+or return a value, and then calling:
+```bash
+curl http://localhost:8000/start
+curl http://localhost:8000/status | jq -r '.result'
 ```

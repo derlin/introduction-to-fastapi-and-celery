@@ -7,7 +7,8 @@ which superseded setuptools and pyenv in the heart of pythonistas.
 
 ## Installation
 
-If you haven't done so, install poetry: https://python-poetry.org/docs/#installation.
+If you haven't done so, install poetry: [https://python-poetry.org/docs/#installation](
+https://python-poetry.org/docs/#installation).
 On a Mac:
 ```bash
 curl -sSL https://install.python-poetry.org | python3 -
