@@ -13,6 +13,7 @@ https://github.com/derlin/fastapi-notebook-runner.
 
 **IMPORTANT** At the time of writing, the versions used are:
 
+* Python 3.11
 * poetry `1.3.0`
 * FastAPI `0.95.0`
 * Celery `5.2.7`
