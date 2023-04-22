@@ -68,7 +68,8 @@ http://www.ines-panker.com/2020/02/16/nginx-uwsqi.html)
 
 Anyway, to get started, we only need to install both FastAPI and uvicorn:
 ```bash
-poetry add fastapi 'uvicorn[standard]'
+poetry add fastapi
+poetry add 'uvicorn[standard]'
 ```
 
 The uvicorn server can then be launched (with reload!) using:
