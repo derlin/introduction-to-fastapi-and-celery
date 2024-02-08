@@ -93,7 +93,7 @@ def dummy_task():
 To check it works, let's call it directly using the Python REPL (`python`):
 
 ```python
->>> import fastapi_celery.task as task
+>>> from fastapi_celery import task
 >>> task.dummy_task()
 ```
 This should create the file - we called it directly, so Celery was not involved. To execute
