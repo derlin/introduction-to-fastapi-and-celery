@@ -93,7 +93,7 @@ def dummy_task():
 To check it works, let's call it directly using the Python REPL (`python`):
 
 ```python
->>> import fastapi_celery.task
+>>> import fastapi_celery.task as task
 >>> task.dummy_task()
 ```
 This should create the file - we called it directly, so Celery was not involved. To execute
@@ -119,7 +119,7 @@ celery --app=fastapi_celery.task.app worker --concurrency=1 --loglevel=DEBUG
 
 Now, try again:
 ```python
->>> task.status
+>>> t.status
 SUCCESS
 ```
 
