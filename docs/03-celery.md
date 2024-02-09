@@ -93,7 +93,7 @@ def dummy_task():
 To check it works, let's call it directly using the Python REPL (`python`):
 
 ```python
->>> import fastapi_celery.task
+>>> from fastapi_celery import task
 >>> task.dummy_task()
 ```
 This should create the file - we called it directly, so Celery was not involved. To execute
@@ -119,7 +119,7 @@ celery --app=fastapi_celery.task.app worker --concurrency=1 --loglevel=DEBUG
 
 Now, try again:
 ```python
->>> task.status
+>>> t.status
 SUCCESS
 ```
 
@@ -305,7 +305,7 @@ def status(task_id: str = None) -> TaskOut:
 
 Maybe we want to cancel the current task. How can we do it?
 
-The Celery app gives us access to [control](), which lets us get statistics,
+The Celery app gives us access to [control](https://docs.celeryq.dev/en/v5.2.7/reference/celery.app.control.html), which lets us get statistics,
 how many workers are running, etc.
 
 ```python
@@ -331,7 +331,7 @@ class TaskOut(BaseModel):
 And modify `_to_task_out` like this:
 
 ```py hl_lines="5"
-def _to_taskout(r: AsyncResult) -> TaskOut:
+def _to_task_out(r: AsyncResult) -> TaskOut:
     return TaskOut(
         id=r.task_id, 
         status=r.status, 
