@@ -144,7 +144,7 @@ def dummy_task(name='Bob') -> str:
 >>> import importlib
 >>> importlib.reload(task)
 >>> t = task.dummy_task.delay('Lucy')
->>> t.result # empty until sucess
+>>> t.result # empty until success
 >>> t.result
 'Hello Lucy!'
 ```
@@ -209,7 +209,7 @@ def _to_task_out(r: AsyncResult) -> TaskOut:
 ## Restricting to one task at a time
 
 Celery doesn't provide an obvious way to limit the number of concurrent tasks.
-In our use case, we want to only have one task executed at a time. If the user tries
+In our use case, we want to have only one task executed at a time. If the user tries
 to start a task while another is already running, he should get an error.
 
 With multithreading/multiprocessing, a common construct is the mutual exclusion (*mutex*) lock.
