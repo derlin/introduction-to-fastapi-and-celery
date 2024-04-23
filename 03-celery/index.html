@@ -1,0 +1,1053 @@
+
+<!doctype html>
+<html lang="en" class="no-js">
+  <head>
+    
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width,initial-scale=1">
+      
+        <meta name="description" content="Learn about FastAPI and Celery using a practical use case.">
+      
+      
+        <meta name="author" content="Lucy Linder, akka derlin">
+      
+      
+      
+        <link rel="prev" href="../02-fastapi/">
+      
+      
+        <link rel="next" href="../04-notebook/">
+      
+      
+      <link rel="icon" href="../assets/favicon.svg">
+      <meta name="generator" content="mkdocs-1.5.3, mkdocs-material-9.5.18">
+    
+    
+      
+        <title>Celery - FastAPI + Celery = ♥</title>
+      
+    
+    
+      <link rel="stylesheet" href="../assets/stylesheets/main.66ac8b77.min.css">
+      
+        
+        <link rel="stylesheet" href="../assets/stylesheets/palette.06af60db.min.css">
+      
+      
+
+
+    
+    
+      
+    
+    
+      
+        
+        
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,300i,400,400i,700,700i%7CRoboto+Mono:400,400i,700,700i&display=fallback">
+        <style>:root{--md-text-font:"Roboto";--md-code-font:"Roboto Mono"}</style>
+      
+    
+    
+      <link rel="stylesheet" href="../extra.css">
+    
+    <script>__md_scope=new URL("..",location),__md_hash=e=>[...e].reduce((e,_)=>(e<<5)-e+_.charCodeAt(0),0),__md_get=(e,_=localStorage,t=__md_scope)=>JSON.parse(_.getItem(t.pathname+"."+e)),__md_set=(e,_,t=localStorage,a=__md_scope)=>{try{t.setItem(a.pathname+"."+e,JSON.stringify(_))}catch(e){}}</script>
+    
+      
+
+    
+    
+    
+  </head>
+  
+  
+    
+    
+      
+    
+    
+    
+    
+    <body dir="ltr" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green">
+  
+    
+    <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
+    <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
+    <label class="md-overlay" for="__drawer"></label>
+    <div data-md-component="skip">
+      
+        
+        <a href="#celery" class="md-skip">
+          Skip to content
+        </a>
+      
+    </div>
+    <div data-md-component="announce">
+      
+    </div>
+    
+    
+      
+
+  
+
+<header class="md-header md-header--shadow" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="FastAPI + Celery = ♥" class="md-header__button md-logo" aria-label="FastAPI + Celery = ♥" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    <label class="md-header__button md-icon" for="__drawer">
+      
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2Z"/></svg>
+    </label>
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
+          <span class="md-ellipsis">
+            FastAPI + Celery = ♥
+          </span>
+        </div>
+        <div class="md-header__topic" data-md-component="header-topic">
+          <span class="md-ellipsis">
+            
+              Celery
+            
+          </span>
+        </div>
+      </div>
+    </div>
+    
+      
+        <form class="md-header__option" data-md-component="palette">
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="default" data-md-color-primary="green" data-md-color-accent="light-green"  aria-label="Switch to dark mode"  type="radio" name="__palette" id="__palette_0">
+    
+      <label class="md-header__button md-icon" title="Switch to dark mode" for="__palette_1" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a4 4 0 0 0-4 4 4 4 0 0 0 4 4 4 4 0 0 0 4-4 4 4 0 0 0-4-4m0 10a6 6 0 0 1-6-6 6 6 0 0 1 6-6 6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+    
+    
+    
+    <input class="md-option" data-md-color-media="" data-md-color-scheme="slate" data-md-color-primary="light-green" data-md-color-accent="green"  aria-label="Switch to light mode"  type="radio" name="__palette" id="__palette_1">
+    
+      <label class="md-header__button md-icon" title="Switch to light mode" for="__palette_0" hidden>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 18c-.89 0-1.74-.2-2.5-.55C11.56 16.5 13 14.42 13 12c0-2.42-1.44-4.5-3.5-5.45C10.26 6.2 11.11 6 12 6a6 6 0 0 1 6 6 6 6 0 0 1-6 6m8-9.31V4h-4.69L12 .69 8.69 4H4v4.69L.69 12 4 15.31V20h4.69L12 23.31 15.31 20H20v-4.69L23.31 12 20 8.69Z"/></svg>
+      </label>
+    
+  
+</form>
+      
+    
+    
+      <script>var media,input,key,value,palette=__md_get("__palette");if(palette&&palette.color){"(prefers-color-scheme)"===palette.color.media&&(media=matchMedia("(prefers-color-scheme: light)"),input=document.querySelector(media.matches?"[data-md-color-media='(prefers-color-scheme: light)']":"[data-md-color-media='(prefers-color-scheme: dark)']"),palette.color.media=input.getAttribute("data-md-color-media"),palette.color.scheme=input.getAttribute("data-md-color-scheme"),palette.color.primary=input.getAttribute("data-md-color-primary"),palette.color.accent=input.getAttribute("data-md-color-accent"));for([key,value]of Object.entries(palette.color))document.body.setAttribute("data-md-color-"+key,value)}</script>
+    
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+      </label>
+      <div class="md-search" data-md-component="search" role="dialog">
+  <label class="md-search__overlay" for="__search"></label>
+  <div class="md-search__inner" role="search">
+    <form class="md-search__form" name="search">
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
+      <label class="md-search__icon md-icon" for="__search">
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5Z"/></svg>
+        
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+      </label>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" title="Clear" aria-label="Clear" tabindex="-1">
+          
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41Z"/></svg>
+        </button>
+      </nav>
+      
+    </form>
+    <div class="md-search__output">
+      <div class="md-search__scrollwrap" data-md-scrollfix>
+        <div class="md-search-result" data-md-component="search-result">
+          <div class="md-search-result__meta">
+            Initializing search
+          </div>
+          <ol class="md-search-result__list" role="presentation"></ol>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+    
+    
+      <div class="md-header__source">
+        <a href="https://github.com/derlin/introduction-to-fastapi-and-celery" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/introduction-to-fastapi-and-celery
+  </div>
+</a>
+      </div>
+    
+  </nav>
+  
+</header>
+    
+    <div class="md-container" data-md-component="container">
+      
+      
+        
+          
+        
+      
+      <main class="md-main" data-md-component="main">
+        <div class="md-main__inner md-grid">
+          
+            
+              
+              <div class="md-sidebar md-sidebar--primary" data-md-component="sidebar" data-md-type="navigation" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+
+
+<nav class="md-nav md-nav--primary" aria-label="Navigation" data-md-level="0">
+  <label class="md-nav__title" for="__drawer">
+    <a href=".." title="FastAPI + Celery = ♥" class="md-nav__button md-logo" aria-label="FastAPI + Celery = ♥" data-md-component="logo">
+      
+  
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M12 8a3 3 0 0 0 3-3 3 3 0 0 0-3-3 3 3 0 0 0-3 3 3 3 0 0 0 3 3m0 3.54C9.64 9.35 6.5 8 3 8v11c3.5 0 6.64 1.35 9 3.54 2.36-2.19 5.5-3.54 9-3.54V8c-3.5 0-6.64 1.35-9 3.54Z"/></svg>
+
+    </a>
+    FastAPI + Celery = ♥
+  </label>
+  
+    <div class="md-nav__source">
+      <a href="https://github.com/derlin/introduction-to-fastapi-and-celery" title="Go to repository" class="md-source" data-md-component="source">
+  <div class="md-source__icon md-icon">
+    
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
+  </div>
+  <div class="md-source__repository">
+    derlin/introduction-to-fastapi-and-celery
+  </div>
+</a>
+    </div>
+  
+  <ul class="md-nav__list" data-md-scrollfix>
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href=".." class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Introduction
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../01-poetry/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Poetry
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../02-fastapi/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    FastAPI
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+    
+  
+  
+  
+    <li class="md-nav__item md-nav__item--active">
+      
+      <input class="md-nav__toggle md-toggle" type="checkbox" id="__toc">
+      
+      
+        
+      
+      
+        <label class="md-nav__link md-nav__link--active" for="__toc">
+          
+  
+  <span class="md-ellipsis">
+    Celery
+  </span>
+  
+
+          <span class="md-nav__icon md-icon"></span>
+        </label>
+      
+      <a href="./" class="md-nav__link md-nav__link--active">
+        
+  
+  <span class="md-ellipsis">
+    Celery
+  </span>
+  
+
+      </a>
+      
+        
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-celery" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Celery
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launch-a-brokerbackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch a broker/backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launch-a-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch a worker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters-and-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters and return values
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-celery-with-fastapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Celery with FastAPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restricting-to-one-task-at-a-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restricting to one task at a time
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canceling-long-running-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canceling long-running tasks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#returning-results-and-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returning results and exceptions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+      
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../04-notebook/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Notebooks
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+      
+      
+  
+  
+  
+  
+    <li class="md-nav__item">
+      <a href="../05-more/" class="md-nav__link">
+        
+  
+  <span class="md-ellipsis">
+    Finishing touches
+  </span>
+  
+
+      </a>
+    </li>
+  
+
+    
+  </ul>
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+            
+              
+              <div class="md-sidebar md-sidebar--secondary" data-md-component="sidebar" data-md-type="toc" >
+                <div class="md-sidebar__scrollwrap">
+                  <div class="md-sidebar__inner">
+                    
+
+<nav class="md-nav md-nav--secondary" aria-label="Table of contents">
+  
+  
+  
+    
+  
+  
+    <label class="md-nav__title" for="__toc">
+      <span class="md-nav__icon md-icon"></span>
+      Table of contents
+    </label>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
+      
+        <li class="md-nav__item">
+  <a href="#what-is-celery" class="md-nav__link">
+    <span class="md-ellipsis">
+      What is Celery
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#getting-started" class="md-nav__link">
+    <span class="md-ellipsis">
+      Getting started
+    </span>
+  </a>
+  
+    <nav class="md-nav" aria-label="Getting started">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#launch-a-brokerbackend" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch a broker/backend
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#create-a-task" class="md-nav__link">
+    <span class="md-ellipsis">
+      Create a task
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#launch-a-worker" class="md-nav__link">
+    <span class="md-ellipsis">
+      Launch a worker
+    </span>
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#parameters-and-return-values" class="md-nav__link">
+    <span class="md-ellipsis">
+      Parameters and return values
+    </span>
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#using-celery-with-fastapi" class="md-nav__link">
+    <span class="md-ellipsis">
+      Using Celery with FastAPI
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#restricting-to-one-task-at-a-time" class="md-nav__link">
+    <span class="md-ellipsis">
+      Restricting to one task at a time
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#canceling-long-running-tasks" class="md-nav__link">
+    <span class="md-ellipsis">
+      Canceling long-running tasks
+    </span>
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#returning-results-and-exceptions" class="md-nav__link">
+    <span class="md-ellipsis">
+      Returning results and exceptions
+    </span>
+  </a>
+  
+</li>
+      
+    </ul>
+  
+</nav>
+                  </div>
+                </div>
+              </div>
+            
+          
+          
+            <div class="md-content" data-md-component="content">
+              <article class="md-content__inner md-typeset">
+                
+                  
+
+  
+  
+
+
+<h1 id="celery">Celery<a class="headerlink" href="#celery" title="Permanent link">&para;</a></h1>
+<p>Celery is a task queue with focus on real-time processing, while also supporting task scheduling.</p>
+<h2 id="what-is-celery">What is Celery<a class="headerlink" href="#what-is-celery" title="Permanent link">&para;</a></h2>
+<p>From their documentation:</p>
+<blockquote>
+<p>Task queues are used as a mechanism to distribute work across threads or machines.
+A task queue’s input is a unit of work called a <strong>task</strong>.
+Dedicated <strong>worker processes</strong> constantly monitor task queues for new work to perform.</p>
+<p>Celery communicates via <strong>messages</strong>, usually using a <strong>broker</strong> to mediate between clients and workers.
+To initiate a task the <strong>client</strong> adds a message to the queue, the broker then delivers that message to a worker.</p>
+<p>A Celery system can consist of multiple workers and brokers, giving way to high availability and horizontal scaling.
+[it] is written in Python, but the protocol can be implemented in any language [(current clients in NodeJS, PHP)].</p>
+</blockquote>
+<p><img alt="Celery overview" src="../assets/03-celery.excalidraw.png" /></p>
+<p>In other words, the entities involved in Celery are:</p>
+<ul>
+<li><strong>producers</strong>: also called <strong>clients</strong>, they are the ones requesting tasks and doing something with the results.</li>
+<li><strong>broker</strong>: the broker is the message transport, used to send and receive messages between producers and workers.
+  In other words, they store the <strong>task queue</strong>. Celery supports a myriad of message brokers,
+  but currently only two are feature-complete: <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="m10.5 2.661.54.997-1.797.644 2.409.218.748 1.246.467-1.121 2.077-.208-1.61-.613.426-1.017-1.578.519zm6.905 2.077L13.76 6.182l3.292 1.298.353-.146 3.293-1.298zm-10.51.312a2.97 1.153 0 0 0-2.97 1.152 2.97 1.153 0 0 0 2.97 1.153 2.97 1.153 0 0 0 2.97-1.153 2.97 1.153 0 0 0-2.97-1.152zM24 6.805s-8.983 4.278-10.395 4.953c-1.226.561-1.901.561-3.261.094C8.318 11.022 0 7.241 0 7.241v1.038c0 .24.332.499.966.8 1.277.613 8.34 3.677 9.45 4.206 1.112.53 1.9.54 3.313-.197 1.412-.738 8.049-3.905 9.326-4.57.654-.342.945-.602.945-.84zm-10.042.602L8.39 8.26l3.884 1.61zM24 10.637s-8.983 4.279-10.395 4.954c-1.226.56-1.901.56-3.261.093C8.318 14.854 0 11.074 0 11.074v1.038c0 .238.332.498.966.8 1.277.612 8.34 3.676 9.45 4.205 1.112.53 1.9.54 3.313-.197 1.412-.737 8.049-3.905 9.326-4.57.654-.332.945-.602.945-.84zm0 3.842-10.395 4.954c-1.226.56-1.901.56-3.261.094C8.318 18.696 0 14.916 0 14.916v1.038c0 .239.332.499.966.8 1.277.613 8.34 3.676 9.45 4.206 1.112.53 1.9.54 3.313-.198 1.412-.737 8.049-3.904 9.326-4.569.654-.343.945-.613.945-.841z"/></svg></span> <a href="https://redis.io/">Redis</a> and 
+  <span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M23.035 9.601h-7.677a.956.956 0 0 1-.962-.962V.962a.956.956 0 0 0-.962-.956H10.56a.956.956 0 0 0-.962.956V8.64a.956.956 0 0 1-.962.962H5.762a.956.956 0 0 1-.961-.962V.962A.956.956 0 0 0 3.839 0H.959a.956.956 0 0 0-.956.962v22.076A.956.956 0 0 0 .965 24h22.07a.956.956 0 0 0 .962-.962V10.58a.956.956 0 0 0-.962-.98zm-3.86 8.152a1.437 1.437 0 0 1-1.437 1.443h-1.924a1.437 1.437 0 0 1-1.436-1.443v-1.917a1.437 1.437 0 0 1 1.436-1.443h1.924a1.437 1.437 0 0 1 1.437 1.443z"/></svg></span> <a href="https://www.rabbitmq.com/">RabbitMQ</a>.</li>
+<li><strong>workers</strong>: the workers are processes that constantly watch the task queue and execute tasks.</li>
+<li><strong>result backend</strong>: a backend is only necessary when we want to keep track of the tasks' states or retrieve results from tasks.
+  A result backend is optional but turned on by default,
+  see <a href="https://patrick.cloke.us/posts/2019/07/17/celery-without-a-results-backend/">Celery without a Results Backend</a>.</li>
+</ul>
+<p>See also the diagram in <a href="https://subscription.packtpub.com/book/programming/9781783288397/7/ch07lvl1sec45/understanding-celerys-architecture">Understanding Celery's architecture</a></p>
+<h2 id="getting-started">Getting started<a class="headerlink" href="#getting-started" title="Permanent link">&para;</a></h2>
+<h3 id="launch-a-brokerbackend">Launch a broker/backend<a class="headerlink" href="#launch-a-brokerbackend" title="Permanent link">&para;</a></h3>
+<p>First, we need a <em>broker</em> and a <em>backend</em>. We will use Redis, as it is both full-featured and easy to use:
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span><span class="s1">&#39;celery[redis]&#39;</span>
+</code></pre></div></p>
+<p>We can run Redis locally using:
+<div class="highlight"><pre><span></span><code>docker<span class="w"> </span>run<span class="w"> </span>--rm<span class="w"> </span>--name<span class="w"> </span>some-redis<span class="w"> </span>-p<span class="w"> </span><span class="m">6379</span>:6379<span class="w"> </span>redis:latest
+</code></pre></div></p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>To see what happens exactly inside Redis, download and run a Redis GUI
+such as <a href="https://github.com/qishibo/AnotherRedisDesktopManager">Another Redis Desktop Manager</a>.</p>
+</div>
+<h3 id="create-a-task">Create a task<a class="headerlink" href="#create-a-task" title="Permanent link">&para;</a></h3>
+<p>Now, let's create a task. We first need to create a <strong>Celery instance</strong>, which is the entrypoint to Celery:
+may it be submitting tasks (client), managing workers, getting results, etc. We usually call it the Celery
+application, or app for short.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">celery.app</span> <span class="kn">import</span> <span class="n">Celery</span>
+
+<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">)</span>
+
+<span class="n">celery_app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">redis_url</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">redis_url</span><span class="p">)</span>
+</code></pre></div>
+<p>Now, let's define a dummy <em>task</em>, that will create a file with a timestamp:</p>
+<div class="highlight"><pre><span></span><code><span class="c1"># in file task.py</span>
+<span class="kn">from</span> <span class="nn">celery.app</span> <span class="kn">import</span> <span class="n">Celery</span>
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">datetime</span>
+<span class="kn">import</span> <span class="nn">os</span>
+
+<span class="n">redis_url</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">getenv</span><span class="p">(</span><span class="s2">&quot;REDIS_URL&quot;</span><span class="p">,</span> <span class="s2">&quot;redis://localhost:6379&quot;</span><span class="p">)</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">Celery</span><span class="p">(</span><span class="vm">__name__</span><span class="p">,</span> <span class="n">broker</span><span class="o">=</span><span class="n">redis_url</span><span class="p">,</span> <span class="n">backend</span><span class="o">=</span><span class="n">redis_url</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">task</span>
+<span class="k">def</span> <span class="nf">dummy_task</span><span class="p">():</span>
+    <span class="n">folder</span> <span class="o">=</span> <span class="s2">&quot;/tmp/celery&quot;</span>
+    <span class="n">os</span><span class="o">.</span><span class="n">makedirs</span><span class="p">(</span><span class="n">folder</span><span class="p">,</span> <span class="n">exist_ok</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">now</span> <span class="o">=</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">()</span><span class="o">.</span><span class="n">strftime</span><span class="p">(</span><span class="s2">&quot;%Y-%m-</span><span class="si">%d</span><span class="s2">T%H:%M:</span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">folder</span><span class="si">}</span><span class="s2">/task-</span><span class="si">{</span><span class="n">now</span><span class="si">}</span><span class="s2">.txt&quot;</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="n">f</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;hello!&quot;</span><span class="p">)</span>
+</code></pre></div>
+<p>To check it works, let's call it directly using the Python REPL (<code>python</code>):</p>
+<p><div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">from</span> <span class="nn">fastapi_celery</span> <span class="kn">import</span> <span class="n">task</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="p">()</span>
+</code></pre></div>
+This should create the file - we called it directly, so Celery was not involved. To execute
+this task using Celery, we need to use one of the methods that were added by the decorator
+(see <a href="https://docs.celeryq.dev/en/stable/userguide/calling.html#guide-calling">calling tasks</a>).
+The most common is <code>delay()</code>, which is a shortcut to <code>apply_async()</code>. Those methods will return
+an <code>AsyncResult</code>, that can be further used to query the status.</p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="o">.</span><span class="n">delay</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span>
+<span class="n">PENDING</span>
+</code></pre></div>
+<p>Why is it pending? Well, we didn't launch any workers, did we? Let's change that.</p>
+<h3 id="launch-a-worker">Launch a worker<a class="headerlink" href="#launch-a-worker" title="Permanent link">&para;</a></h3>
+<p>In another terminal, run:
+<div class="highlight"><pre><span></span><code>celery<span class="w"> </span>--app<span class="o">=</span>fastapi_celery.task.app<span class="w"> </span>worker<span class="w"> </span>--concurrency<span class="o">=</span><span class="m">1</span><span class="w"> </span>--loglevel<span class="o">=</span>DEBUG
+</code></pre></div></p>
+<p>Now, try again:
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span>
+<span class="n">SUCCESS</span>
+</code></pre></div></p>
+<p>To ensure this works, try adding a delay in the task: <code>time.sleep(10)</code>.
+Don't forget to restart the worker, as the method definition changed!
+Even better, use <code>watchdog</code> to automatically restart the worker:
+<div class="highlight"><pre><span></span><code>poetry<span class="w"> </span>add<span class="w"> </span>watchdog<span class="w"> </span>--group<span class="o">=</span>dev
+watchmedo<span class="w"> </span>auto-restart<span class="w"> </span>--directory<span class="o">=</span>./fastapi_celery<span class="w"> </span>--pattern<span class="o">=</span>task.py<span class="w"> </span>--<span class="w"> </span>celery<span class="w"> </span>--app<span class="o">=</span>fastapi_celery.task.app<span class="w"> </span>worker<span class="w"> </span>--concurrency<span class="o">=</span><span class="m">1</span><span class="w"> </span>--loglevel<span class="o">=</span>DEBUG
+</code></pre></div></p>
+<h3 id="parameters-and-return-values">Parameters and return values<a class="headerlink" href="#parameters-and-return-values" title="Permanent link">&para;</a></h3>
+<p>Now, let's change a bit our dummy task so it receives an argument and returns a result:
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">dummy_task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Bob&#39;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="n">sleep</span><span class="p">(</span><span class="mi">5</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s1">&#39;Hello </span><span class="si">{</span><span class="n">name</span><span class="si">}</span><span class="s1">!&#39;</span>
+</code></pre></div></p>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="kn">import</span> <span class="nn">importlib</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">importlib</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">task</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="s1">&#39;Lucy&#39;</span><span class="p">)</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">result</span> <span class="c1"># empty until success</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">result</span>
+<span class="s1">&#39;Hello Lucy!&#39;</span>
+</code></pre></div>
+<p>Try to return a dictionary instead. It should work the same. But what about this?</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">dummy_task</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">return</span> <span class="nb">open</span><span class="p">(</span><span class="s1">&#39;/tmp/celery/x.txt&#39;</span><span class="p">,</span> <span class="s1">&#39;w&#39;</span><span class="p">)</span>
+</code></pre></div>
+<div class="highlight"><pre><span></span><code><span class="o">&gt;&gt;&gt;</span> <span class="n">t</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="o">.</span><span class="n">delay</span><span class="p">()</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">status</span>
+<span class="s1">&#39;FAILURE&#39;</span>
+<span class="o">&gt;&gt;&gt;</span> <span class="n">t</span><span class="o">.</span><span class="n">result</span>
+<span class="n">EncodeError</span><span class="p">(</span><span class="s2">&quot;TypeError(&#39;Object of type TextIOWrapper is not JSON serializable&#39;)&quot;</span><span class="p">)</span>
+<span class="n">t</span><span class="o">.</span><span class="n">successful</span><span class="p">()</span>
+<span class="kc">False</span>
+</code></pre></div>
+<p>So beware: results must be JSON-serializable (or match the serialization configured in Celery)
+since the results will be serialized and stored in the results backend.</p>
+<h2 id="using-celery-with-fastapi">Using Celery with FastAPI<a class="headerlink" href="#using-celery-with-fastapi" title="Permanent link">&para;</a></h2>
+<p>With those building blocks, we can now bind the two together. We simply import <code>task.py</code> in FastAPI,
+and call our <code>task.delay()</code> from a REST call. We can return the task ID and its status to the user:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">fastapi</span> <span class="kn">import</span> <span class="n">FastAPI</span><span class="p">,</span> <span class="n">HTTPException</span>
+<span class="kn">from</span> <span class="nn">pydantic</span> <span class="kn">import</span> <span class="n">BaseModel</span>
+<span class="kn">from</span> <span class="nn">celery.result</span> <span class="kn">import</span> <span class="n">AsyncResult</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">task</span>
+
+<span class="n">app</span> <span class="o">=</span> <span class="n">FastAPI</span><span class="p">()</span>
+
+
+<span class="k">class</span> <span class="nc">TaskOut</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="o">.</span><span class="n">delay</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+
+<span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">AsyncResult</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">AsyncResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">TaskOut</span><span class="p">(</span><span class="nb">id</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> <span class="n">status</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="restricting-to-one-task-at-a-time">Restricting to one task at a time<a class="headerlink" href="#restricting-to-one-task-at-a-time" title="Permanent link">&para;</a></h2>
+<p>Celery doesn't provide an obvious way to limit the number of concurrent tasks.
+In our use case, we want to have only one task executed at a time. If the user tries
+to start a task while another is already running, he should get an error.</p>
+<p>With multithreading/multiprocessing, a common construct is the mutual exclusion (<em>mutex</em>) lock.
+The thing is, we have multiple processes here, so we need a lock that lives outside the Python
+process.</p>
+<p>As we already have Redis, we can use a <a href="https://redis-py.readthedocs.io/en/v4.1.2/lock.html">Redis Lock</a>!
+But how do we use it?</p>
+<p>Ideally, we would like to get the lock when we start a task (from the REST endpoint - FastAPI), and release
+it when the task is finished (from the Celery worker). But a lock should be acquired and released from the
+same thread... And worse, if our worker fails to release the lock, we are stuck!</p>
+<p><img alt="bad use of a lock" src="../assets/03-lock-bad.excalidraw.png" /></p>
+<p>A better way is to use the lock from FastAPI only. We cannot know when the task is finished, but we can query
+the state of a task given an ID. So let's use the lock to secure the read/write to a Redis key, <code>current_task_id</code>,
+which holds the ID of the last task!</p>
+<p><img alt="good use of a lock" src="../assets/03-lock-good.excalidraw.png" /></p>
+<!-- This way, the REST endpoint:
+
+1. acquires the lock
+2. reads the last task id from Redis
+3. queries the status of the task
+4. if the task is still pending, throws an error, if it is finished:
+    * launches a new task
+    * stores the new ID in Redis
+5. releases the lock
+
+Cherries on the cake, endpoints such as `/status` can return the status of the last task by default,
+so users do not have to supply a value on each call. -->
+
+<p>So, for the implementation, let's first create a redis lock:</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">redis</span> <span class="kn">import</span> <span class="n">Redis</span>
+<span class="kn">from</span> <span class="nn">redis.lock</span> <span class="kn">import</span> <span class="n">Lock</span> <span class="k">as</span> <span class="n">RedisLock</span>
+
+<span class="n">redis_instance</span> <span class="o">=</span> <span class="n">Redis</span><span class="o">.</span><span class="n">from_url</span><span class="p">(</span><span class="n">task</span><span class="o">.</span><span class="n">redis_url</span><span class="p">)</span>
+<span class="n">lock</span> <span class="o">=</span> <span class="n">RedisLock</span><span class="p">(</span><span class="n">redis_instance</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s2">&quot;task_id&quot;</span><span class="p">)</span>
+
+<span class="n">REDIS_TASK_KEY</span> <span class="o">=</span> <span class="s2">&quot;current_task&quot;</span>
+</code></pre></div>
+<p>The <code>/start</code> endpoint now looks like this:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/start&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">start</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">lock</span><span class="o">.</span><span class="n">acquire</span><span class="p">(</span><span class="n">blocking_timeout</span><span class="o">=</span><span class="mi">4</span><span class="p">):</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span><span class="n">status_code</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;Could not acquire lock&quot;</span><span class="p">)</span>
+
+        <span class="n">task_id</span> <span class="o">=</span> <span class="n">redis_instance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">REDIS_TASK_KEY</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">task_id</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">task</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">AsyncResult</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span><span class="o">.</span><span class="n">ready</span><span class="p">():</span>
+            <span class="c1"># no task was ever run, or the last task finished already</span>
+            <span class="n">r</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">dummy_task</span><span class="o">.</span><span class="n">delay</span><span class="p">()</span>
+            <span class="n">redis_instance</span><span class="o">.</span><span class="n">set</span><span class="p">(</span><span class="n">REDIS_TASK_KEY</span><span class="p">,</span> <span class="n">r</span><span class="o">.</span><span class="n">task_id</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="c1"># the last task is still running!</span>
+            <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+                <span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="s2">&quot;A task is already being executed&quot;</span>
+            <span class="p">)</span>
+    <span class="k">finally</span><span class="p">:</span>
+        <span class="n">lock</span><span class="o">.</span><span class="n">release</span><span class="p">()</span>
+</code></pre></div>
+<p>And for the <code>/status</code>, we can now make the <code>task_id</code> query parameter optional:</p>
+<div class="highlight"><pre><span></span><code><span class="nd">@app</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;/status&quot;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">status</span><span class="p">(</span><span class="n">task_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="n">task_id</span> <span class="o">=</span> <span class="n">task_id</span> <span class="ow">or</span> <span class="n">redis_instance</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">REDIS_TASK_KEY</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">task_id</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="n">HTTPException</span><span class="p">(</span>
+            <span class="n">status_code</span><span class="o">=</span><span class="mi">400</span><span class="p">,</span> <span class="n">detail</span><span class="o">=</span><span class="sa">f</span><span class="s2">&quot;Could not determine task </span><span class="si">{</span><span class="n">task_id</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="p">)</span>
+    <span class="n">r</span> <span class="o">=</span> <span class="n">task</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">AsyncResult</span><span class="p">(</span><span class="n">task_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">)</span>
+</code></pre></div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>This code is far from perfect. For example: what happens if the <code>task_id</code> is incorrect or
+not known by celery? For <code>/status</code>, we may just get an error. But for <code>/start</code>?
+The lock may never be released! This is one of many flows, so don't put it in production
+<span class="twemoji"><svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M464 256a208 208 0 1 0-416 0 208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0 256 256 0 1 1-512 0zm177.6 62.1c15.2 16.4 41.2 33.9 78.4 33.9s63.2-17.5 78.4-33.9c9-9.7 24.2-10.4 33.9-1.4s10.4 24.2 1.4 33.9c-22 23.8-60 49.4-113.6 49.4s-91.7-25.5-113.6-49.4c-9-9.7-8.4-24.9 1.4-33.9s24.9-8.4 33.9 1.4zM144.4 208a32 32 0 1 1 64 0 32 32 0 1 1-64 0zm165.8 21.7c-7.6 8.1-20.2 8.5-28.3.9s-8.5-20.2-.9-28.3c14.5-15.5 35.2-22.3 54.6-22.3s40.1 6.8 54.6 22.3c7.6 8.1 7.1 20.7-.9 28.3s-20.7 7.1-28.3-.9c-5.5-5.8-14.8-9.7-25.4-9.7s-19.9 3.8-25.4 9.7z"/></svg></span></p>
+</div>
+<h2 id="canceling-long-running-tasks">Canceling long-running tasks<a class="headerlink" href="#canceling-long-running-tasks" title="Permanent link">&para;</a></h2>
+<p>Maybe we want to cancel the current task. How can we do it?</p>
+<p>The Celery app gives us access to <a href="https://docs.celeryq.dev/en/v5.2.7/reference/celery.app.control.html">control</a>, which lets us get statistics,
+how many workers are running, etc.</p>
+<div class="highlight"><pre><span></span><code><span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">task</span>
+
+<span class="c1"># note: if id is read from redis, use:</span>
+<span class="c1">#  task_id = redis_instance.get(...).decode(&#39;utf-8&#39;)</span>
+<span class="n">task</span><span class="o">.</span><span class="n">app</span><span class="o">.</span><span class="n">control</span><span class="o">.</span><span class="n">revoke</span><span class="p">(</span><span class="n">task_id</span><span class="p">,</span> <span class="n">terminate</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">signal</span><span class="o">=</span><span class="s2">&quot;SIGKILL&quot;</span><span class="p">)</span>
+</code></pre></div>
+<h2 id="returning-results-and-exceptions">Returning results and exceptions<a class="headerlink" href="#returning-results-and-exceptions" title="Permanent link">&para;</a></h2>
+<p>Simply add a new property to <code>TaskOut</code>:</p>
+<div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">TaskOut</span><span class="p">(</span><span class="n">BaseModel</span><span class="p">):</span>
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">status</span><span class="p">:</span> <span class="nb">str</span>
+<span class="hll">    <span class="n">result</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+</span></code></pre></div>
+<p>And modify <code>_to_task_out</code> like this:</p>
+<div class="highlight"><pre><span></span><code><span class="k">def</span> <span class="nf">_to_task_out</span><span class="p">(</span><span class="n">r</span><span class="p">:</span> <span class="n">AsyncResult</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">TaskOut</span><span class="p">:</span>
+    <span class="k">return</span> <span class="n">TaskOut</span><span class="p">(</span>
+        <span class="nb">id</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">task_id</span><span class="p">,</span> 
+        <span class="n">status</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">status</span><span class="p">,</span> 
+<span class="hll">        <span class="n">result</span><span class="o">=</span><span class="n">r</span><span class="o">.</span><span class="n">traceback</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">failed</span><span class="p">()</span> <span class="k">else</span> <span class="n">r</span><span class="o">.</span><span class="n">result</span><span class="p">,</span>
+</span>    <span class="p">)</span>
+</code></pre></div>
+<p>You can try to get the traceback by making the task throw an exception
+or return a value, and then calling:
+<div class="highlight"><pre><span></span><code>curl<span class="w"> </span>http://localhost:8000/start
+curl<span class="w"> </span>http://localhost:8000/status<span class="w"> </span><span class="p">|</span><span class="w"> </span>jq<span class="w"> </span>-r<span class="w"> </span><span class="s1">&#39;.result&#39;</span>
+</code></pre></div></p>
+
+
+
+
+
+
+
+
+
+
+
+
+                
+              </article>
+            </div>
+          
+          
+<script>var target=document.getElementById(location.hash.slice(1));target&&target.name&&(target.checked=target.name.startsWith("__tabbed_"))</script>
+        </div>
+        
+      </main>
+      
+        <footer class="md-footer">
+  
+    
+      
+      <nav class="md-footer__inner md-grid" aria-label="Footer" >
+        
+          
+          <a href="../02-fastapi/" class="md-footer__link md-footer__link--prev" aria-label="Previous: FastAPI">
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12Z"/></svg>
+            </div>
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Previous
+              </span>
+              <div class="md-ellipsis">
+                FastAPI
+              </div>
+            </div>
+          </a>
+        
+        
+          
+          <a href="../04-notebook/" class="md-footer__link md-footer__link--next" aria-label="Next: Notebooks">
+            <div class="md-footer__title">
+              <span class="md-footer__direction">
+                Next
+              </span>
+              <div class="md-ellipsis">
+                Notebooks
+              </div>
+            </div>
+            <div class="md-footer__button md-icon">
+              
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4Z"/></svg>
+            </div>
+          </a>
+        
+      </nav>
+    
+  
+  <div class="md-footer-meta md-typeset">
+    <div class="md-footer-meta__inner md-grid">
+      <div class="md-copyright">
+  
+    <div class="md-copyright__highlight">
+      Copyright &copy; 2023 Lucy Linder @ derlin
+    </div>
+  
+  
+</div>
+      
+        <div class="md-social">
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://blog.derlin.ch" target="_blank" rel="noopener" title="blog.derlin.ch" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M455.6 349.2c-45.891-39.09-36.67-77.877-16.095-128.11C475.16 134.04 415.967 34.14 329.93 8.3 237.04-19.6 134.252 24.341 99.677 117.147a180.862 180.862 0 0 0-10.988 73.544c1.733 29.543 14.717 52.97 24.09 80.3 17.2 50.161-28.1 92.743-66.662 117.582-46.806 30.2-36.319 39.857-8.428 41.858 23.378 1.68 44.478-4.548 65.265-15.045 9.2-4.647 40.687-18.931 45.13-28.588-12.184 26.59-36.962 72.702-21.463 102.102 19.1 36.229 67.112-31.77 76.709-45.812 8.591-12.572 42.963-81.279 63.627-46.926 18.865 31.361 8.6 76.391 35.738 104.622 32.854 34.2 51.155-18.312 51.412-44.221.163-16.411-6.1-95.852 29.9-59.944 21.421 21.381 52.905 71.181 88.561 67.023 38.736-4.516-22.123-67.967-28.262-78.695 5.393 4.279 53.665 34.128 53.818 9.52.11-18.789-30.085-34.667-42.524-45.267Z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://github.com/derlin" target="_blank" rel="noopener" title="github.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 496 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M165.9 397.4c0 2-2.3 3.6-5.2 3.6-3.3.3-5.6-1.3-5.6-3.6 0-2 2.3-3.6 5.2-3.6 3-.3 5.6 1.3 5.6 3.6zm-31.1-4.5c-.7 2 1.3 4.3 4.3 4.9 2.6 1 5.6 0 6.2-2s-1.3-4.3-4.3-5.2c-2.6-.7-5.5.3-6.2 2.3zm44.2-1.7c-2.9.7-4.9 2.6-4.6 4.9.3 2 2.9 3.3 5.9 2.6 2.9-.7 4.9-2.6 4.6-4.6-.3-1.9-3-3.2-5.9-2.9zM244.8 8C106.1 8 0 113.3 0 252c0 110.9 69.8 205.8 169.5 239.2 12.8 2.3 17.3-5.6 17.3-12.1 0-6.2-.3-40.4-.3-61.4 0 0-70 15-84.7-29.8 0 0-11.4-29.1-27.8-36.6 0 0-22.9-15.7 1.6-15.4 0 0 24.9 2 38.6 25.8 21.9 38.6 58.6 27.5 72.9 20.9 2.3-16 8.8-27.1 16-33.7-55.9-6.2-112.3-14.3-112.3-110.5 0-27.5 7.6-41.3 23.6-58.9-2.6-6.5-11.1-33.3 2.6-67.9 20.9-6.5 69 27 69 27 20-5.6 41.5-8.5 62.8-8.5s42.8 2.9 62.8 8.5c0 0 48.1-33.6 69-27 13.7 34.7 5.2 61.4 2.6 67.9 16 17.7 25.8 31.5 25.8 58.9 0 96.5-58.9 104.2-114.8 110.5 9.2 7.9 17 22.9 17 46.4 0 33.7-.3 75.4-.3 83.6 0 6.5 4.6 14.4 17.3 12.1C428.2 457.8 496 362.9 496 252 496 113.3 383.5 8 244.8 8zM97.2 352.9c-1.3 1-1 3.3.7 5.2 1.6 1.6 3.9 2.3 5.2 1 1.3-1 1-3.3-.7-5.2-1.6-1.6-3.9-2.3-5.2-1zm-10.8-8.1c-.7 1.3.3 2.9 2.3 3.9 1.6 1 3.6.7 4.3-.7.7-1.3-.3-2.9-2.3-3.9-2-.6-3.6-.3-4.3.7zm32.4 35.6c-1.6 1.3-1 4.3 1.3 6.2 2.3 2.3 5.2 2.6 6.5 1 1.3-1.3.7-4.3-1.3-6.2-2.2-2.3-5.2-2.6-6.5-1zm-11.4-14.7c-1.6 1-1.6 3.6 0 5.9 1.6 2.3 4.3 3.3 5.6 2.3 1.6-1.3 1.6-3.9 0-6.2-1.4-2.3-4-3.3-5.6-2z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://www.linkedin.com/in/lucy-linder-4a401726" target="_blank" rel="noopener" title="www.linkedin.com" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><!--! Font Awesome Free 6.5.2 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license/free (Icons: CC BY 4.0, Fonts: SIL OFL 1.1, Code: MIT License) Copyright 2024 Fonticons, Inc.--><path d="M416 32H31.9C14.3 32 0 46.5 0 64.3v383.4C0 465.5 14.3 480 31.9 480H416c17.6 0 32-14.5 32-32.3V64.3c0-17.8-14.4-32.3-32-32.3zM135.4 416H69V202.2h66.5V416zm-33.2-243c-21.3 0-38.5-17.3-38.5-38.5S80.9 96 102.2 96c21.2 0 38.5 17.3 38.5 38.5 0 21.3-17.2 38.5-38.5 38.5zm282.1 243h-66.4V312c0-24.8-.5-56.7-34.5-56.7-34.6 0-39.9 27-39.9 54.9V416h-66.4V202.2h63.7v29.2h.9c8.9-16.8 30.6-34.5 62.9-34.5 67.2 0 79.7 44.3 79.7 101.9V416z"/></svg>
+    </a>
+  
+    
+    
+    
+    
+      
+      
+    
+    <a href="https://dev.to/derlin" target="_blank" rel="noopener" title="dev.to" class="md-social__link">
+      <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M7.73 11.93c0 1.72-.02 1.83-.23 2.07-.19.17-.38.23-.76.23l-.51.01-.03-2.27-.02-2.27h.52c.35 0 .6.07.77.21.24.21.26.25.26 2.02M22 7.5v9c0 1.11-.89 2-2 2H4c-1.11 0-2-.89-2-2v-9c0-1.11.89-2 2-2h16c1.11 0 2 .89 2 2M8.93 11.73c-.03-1.84-.05-1.99-.29-2.39-.4-.68-.85-.84-2.36-.84H5v7h1.21c1.33 0 1.89-.17 2.29-.71.41-.53.5-.98.43-3.06m4.19-3.23h-1.48c-1.49 0-1.5 0-1.71.28S9.7 9.21 9.7 12v2.96l.27.27c.25.27.31.27 1.71.27h1.44v-1.19l-1.09-.04-1.1-.03V12.6l.68-.03.66-.04v-1.19h-1.39V9.7h2.24V8.5m5.88.06c0-.06-.3-.06-.66-.06l-.68.06-.59 2.35c-.38 1.48-.62 2.27-.67 2.13-.08-.27-1.14-4.44-1.14-4.49 0-.05-.31-.05-.68-.05h-.69l.41 1.55c.2.87.59 2.28.81 3.15.34 1.35.46 1.65.75 1.94.2.22.45.36.61.36.33 0 .76-.34.9-.73C17.5 14.5 19 8.69 19 8.56Z"/></svg>
+    </a>
+  
+</div>
+      
+    </div>
+  </div>
+</footer>
+      
+    </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    
+    
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.footer"], "search": "../assets/javascripts/workers/search.b8dbb3d2.min.js", "translations": {"clipboard.copied": "Copied to clipboard", "clipboard.copy": "Copy to clipboard", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.placeholder": "Type to start searching", "search.result.term.missing": "Missing", "select.version": "Select version"}}</script>
+    
+    
+      <script src="../assets/javascripts/bundle.3220b9d7.min.js"></script>
+      
+    
+  </body>
+</html>
